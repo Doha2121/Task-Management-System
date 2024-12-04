@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Scrollable Sidebar -->
+        <aside class="app-sidebar-scrollable-container">
+            <ul>
+                <li><button onclick="window.location.href='Home page.html'">Home</button></li>
+                <li><button onclick="window.location.href='dashboard.html'">Dashboard</button></li>
+                <li><button onclick="window.location.href='type.html'">Type Of Tasks</button></li>
+                
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="task-entry">
+                <h1>Add a Task</h1>
+
+                <!-- Task Title Input -->
+                <input type="text" id="taskTitle" placeholder="Enter task title" />
+
+                <!-- Task Description Input -->
+                <textarea id="taskDescription" placeholder="Enter task description..."></textarea>
+
+                <!-- Time Selection -->
+                <select id="taskTime">
+                    <option value="">Select Task Time</option>
+                    <!-- Hour options from 1 AM to 12 PM -->
+                    <option value="1 AM">1 AM</option>
+                    <option value="2 AM">2 AM</option>
+                    <option value="3 AM">3 AM</option>
+                    <option value="4 AM">4 AM</option>
+                    <option value="5 AM">5 AM</option>
+                    <option value="6 AM">6 AM</option>
+                    <option value="7 AM">7 AM</option>
+                    <option value="8 AM">8 AM</option>
+                    <option value="9 AM">9 AM</option>
+                    <option value="10 AM">10 AM</option>
+                    <option value="11 AM">11 AM</option>
+                    <option value="12 PM">12 PM</option>
+                </select>
+
+                <!-- Add Task Button -->
+                <button id="addTaskBtn">Add Task</button>
+            </div>
+
+            <!-- Task Display -->
+            <div class="task-sidebar">
+                <h2>Tasks</h2>
+                <ul id="taskList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script> <!-- Ensure this is linked properly -->
+</body>
+</html>
