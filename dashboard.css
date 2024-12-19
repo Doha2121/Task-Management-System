@@ -1,150 +1,95 @@
-/* General Styles */
 body {
-    margin: 0;
-    padding: 0;
     font-family: Arial, sans-serif;
-    background-color: #ffd1d1; /* Light red background */
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
+    background-color: #ffd1d1;
+    margin: 0;
 }
 
-/* App Container */
 .app-container {
     display: flex;
-    width: 100%;
-    height: 100%;
+    padding: 20px;
 }
 
-/* Scrollable Sidebar */
 .app-sidebar-scrollable-container {
-    width: 280px;
-    height: 100%;
-    background: #333;
-    color: white;
-    overflow-y: auto;
+    width: 250px;
+    background-color: #333;
+    color: #ffd1d1;
     padding: 20px;
-    box-sizing: border-box;
+    height: 100vh;
+    position: fixed;
+    top: 0;
 }
 
 .app-sidebar-scrollable-container ul {
-    list-style: none;
+    list-style-type: none;
     padding: 0;
 }
 
 .app-sidebar-scrollable-container li {
-    margin-bottom: 20px;
+    margin: 20px 0;
 }
 
-/* Change the Home button color to white with black text */
 .app-sidebar-scrollable-container button {
-    background: white;  /* Set the background to white */
-    color: black;       /* Set the text color to black */
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
+    background-color: #444;
+    color: white;
     width: 100%;
-    text-align: left;
-}
-
-/* Main Content */
-.main-content {
-    margin: auto;
-    width: 60%; /* Center main content */
-    text-align: center;
-}
-
-/* Task Entry Area */
-.task-entry h1 {
-    margin-bottom: 20px;
-}
-
-#taskTitle {
-    width: 80%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#taskDescription {
-    width: 80%;
-    height: 100px;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#taskTime {
-    width: 80%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-#addTaskBtn {
-    background: black; /* Changed to black */
-    color: white; /* White text for contrast */
-    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-/* Task Sidebar */
-.task-sidebar {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.task-sidebar h2 {
-    margin-bottom: 10px;
-}
-
-#taskList {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto;
-    display: inline-block;
-    text-align: left;
-}
-
-.task {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #ffffff;
-    margin-bottom: 10px;
     padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 18px;
 }
 
-.task button {
-    background: red;
+.app-sidebar-scrollable-container button:hover {
+    background-color: #555;
+}
+
+.main-content {
+    margin-left: 270px;
+    padding: 20px;
+    width: calc(100% - 270px);
+}
+
+.task-entry {
+    background-color: #ffd1d1;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+input, textarea, select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ffd1d1;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #333;
     color: white;
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
     cursor: pointer;
 }
 
-.task input[type="checkbox"] {
-    margin-right: 10px;
+button:hover {
+    background-color: #555;
 }
 
-/* Celebration Animation */
-@keyframes celebrate {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.5); }
-    100% { transform: scale(1); }
+.task-sidebar {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.celebrate {
-    animation: celebrate 1s ease-in-out infinite;
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px 0;
 }
