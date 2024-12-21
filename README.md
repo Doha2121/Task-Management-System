@@ -2,11 +2,15 @@
 A collaborative project designed to help users manage their tasks efficiently.
 
 ## Features
-- (log in, log out)
-- Sign up
-- Create, edit, delete tasks
-- Mark tasks as completed/incomplete
-- Categorize tasks (work, personal)
-- Sort tasks by due dates, priority, category
-- Search for tasks
-- Set reminders for task due dates
+•	Functional Requirements
+•	User Authentication:
+o	 Register (Sign Up)
+o	 Sign in
+o	 Log out
+•	Tasks Management 
+o	Create a Task (Title, description, due date)
+o	Delete Task 
+o	Update Task
+o	Categorize tasks
+o	Mark the Task as Completed 
+o	Mark the Task as Incomplete
