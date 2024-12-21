@@ -3,6 +3,8 @@ name: Python Flask App CI
 on:
   push:
     branches : ["*"]
+  pull_request:
+    branches : ["*"]
 
       
 
