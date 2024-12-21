@@ -34,12 +34,17 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: 3.13.1
+          python-version: 3.10  # You can use another version like 3.9 or 3.11 if needed.
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      # Add this step to install pytest explicitly
+      - name: Install pytest
+        run: |
+          pip install pytest
 
       - name: Run tests
         run: |
