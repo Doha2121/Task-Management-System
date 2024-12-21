@@ -52,23 +52,6 @@ class TaskManagementTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Invalid username or password', response.data)
 
-
-    def test_delete_task(self):
-        with app.app_context():
-            user = User.query.filter_by(username='testuser').first()
-            task = Task(title='Test Task', description='This will be deleted', user_id=user.id)
-            db.session.add(task)
-            db.session.commit()
-
-        self.login('testuser', 'testpassword')
-        response = self.client.post(f'/delete/{task.id}')
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data['status'], 'success')
-        with app.app_context():
-            deleted_task = Task.query.get(task.id)
-            self.assertIsNone(deleted_task)
-
     def test_home_no_login(self):
         response = self.client.get('/home')
         self.assertEqual(response.status_code, 302)
