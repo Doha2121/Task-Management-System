@@ -1,80 +1,130 @@
 import unittest
 from app import app, db, User, Task
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import login_user, logout_user
+from flask_login import login_user
+from werkzeug.security import generate_password_hash
+
 
 class TaskManagementTestCase(unittest.TestCase):
+
+    # Setup and teardown for test database
     def setUp(self):
-        """Set up test environment and create a test client."""
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-        app.config['SECRET_KEY'] = 'testsecretkey'
+        app.config['SECRET_KEY'] = 'testsecret'
         self.client = app.test_client()
-        
-        # Create all tables
-        with app.app_context():
-            db.create_all()
+        db.create_all()
 
-        # Create a sample user
-        self.user = User(username="testuser", password="testpassword", gender="Male")
-        with app.app_context():
-            db.session.add(self.user)
-            db.session.commit()
+        # Create a test user
+        self.user = User(username="testuser", password=generate_password_hash("testpassword"), gender="male")
+        db.session.add(self.user)
+        db.session.commit()
 
     def tearDown(self):
-        """Clean up after each test."""
-        with app.app_context():
-            db.session.remove()
-            db.drop_all()
+        db.session.remove()
+        db.drop_all()
 
-    def test_register_user(self):
-        """Test the user registration functionality."""
-        response = self.client.post('/register', data=dict(
-            username="newuser", password="newpassword", gender="Female"), follow_redirects=True)
-        self.assertIn(b'Signup successful!', response.data)
+    # Test user registration
+    def test_register(self):
+        response = self.client.post('/register', data={
+            'username': 'newuser',
+            'password': 'newpassword',
+            'gender': 'female'
+        })
+        self.assertEqual(response.status_code, 302)  # Should redirect to login page
         user = User.query.filter_by(username='newuser').first()
         self.assertIsNotNone(user)
 
-    def test_login_user(self):
-        """Test the user login functionality."""
-        response = self.client.post('/login', data=dict(
-            username="testuser", password="testpassword"), follow_redirects=True)
-        self.assertIn(b'Home page', response.data)
+    # Test user login
+    def test_login(self):
+        response = self.client.post('/login', data={
+            'username': 'testuser',
+            'password': 'testpassword'
+        })
+        self.assertEqual(response.status_code, 302)  # Should redirect to home page
+        self.assertIn('home', response.location)
 
+    # Test login failure (invalid credentials)
+    def test_login_fail(self):
+        response = self.client.post('/login', data={
+            'username': 'testuser',
+            'password': 'wrongpassword'
+        })
+        self.assertEqual(response.status_code, 200)  # Should stay on the login page
+        self.assertIn(b'Invalid username or password.', response.data)
+
+    # Test adding a task
     def test_add_task(self):
-        """Test adding a task."""
-        self.client.post('/login', data=dict(
-            username="testuser", password="testpassword"), follow_redirects=True)
-        response = self.client.post('/add', data=dict(
-            title="Test Task", description="Test task description", due_date="2024-12-25", category="General"), follow_redirects=True)
-        self.assertIn(b'Task added successfully!', response.data)
+        with self.client:
+            login_user(self.user)
+            response = self.client.post('/add', data={
+                'title': 'Test Task',
+                'description': 'Task description',
+                'due_date': '2024-12-31',
+                'category': 'Work'
+            })
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertEqual(data['status'], 'success')
+            task = Task.query.filter_by(title='Test Task').first()
+            self.assertIsNotNone(task)
 
+    # Test updating a task
     def test_update_task(self):
-        """Test updating a task."""
-        self.client.post('/login', data=dict(
-            username="testuser", password="testpassword"), follow_redirects=True)
-        task = Task(title="Old Task", description="Old description", user_id=self.user.id)
+        # Add a task
+        task = Task(title='Test Task', description='Old description', user_id=self.user.id)
         db.session.add(task)
         db.session.commit()
-        response = self.client.post(f'/update/{task.id}', data=dict(
-            title="Updated Task", description="Updated description", due_date="2024-12-30", category="Updated Category"), follow_redirects=True)
-        self.assertIn(b'Task updated successfully!', response.data)
 
+        with self.client:
+            login_user(self.user)
+            response = self.client.post(f'/update/{task.id}', data={
+                'title': 'Updated Task',
+                'description': 'Updated description',
+                'due_date': '2025-01-01',
+                'category': 'Home'
+            })
+            self.assertEqual(response.status_code, 302)  # Should redirect to dashboard
+            updated_task = Task.query.get(task.id)
+            self.assertEqual(updated_task.title, 'Updated Task')
+            self.assertEqual(updated_task.description, 'Updated description')
+
+    # Test deleting a task
     def test_delete_task(self):
-        """Test deleting a task."""
-        self.client.post('/login', data=dict(
-            username="testuser", password="testpassword"), follow_redirects=True)
-        task = Task(title="Task to delete", description="This task will be deleted", user_id=self.user.id)
+        # Add a task
+        task = Task(title='Test Task', description='This will be deleted', user_id=self.user.id)
         db.session.add(task)
         db.session.commit()
-        response = self.client.post(f'/delete/{task.id}', follow_redirects=True)
-        self.assertIn(b'Task deleted successfully!', response.data)
 
-    def test_access_dashboard_without_login(self):
-        """Test access to dashboard without login."""
-        response = self.client.get('/dashboard', follow_redirects=True)
-        self.assertIn(b'Login', response.data)
+        with self.client:
+            login_user(self.user)
+            response = self.client.post(f'/delete/{task.id}')
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertEqual(data['status'], 'success')
+            deleted_task = Task.query.get(task.id)
+            self.assertIsNone(deleted_task)
+
+    # Test home page access without login (should redirect to login)
+    def test_home_no_login(self):
+        response = self.client.get('/home')
+        self.assertEqual(response.status_code, 302)  # Should redirect to login page
+
+    # Test dashboard page access with login
+    def test_dashboard_with_login(self):
+        with self.client:
+            login_user(self.user)
+            response = self.client.get('/dashboard')
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('dashboard.html', response.data)
+
+    # Test logout
+    def test_logout(self):
+        with self.client:
+            login_user(self.user)
+            response = self.client.get('/logout')
+            self.assertEqual(response.status_code, 302)  # Should redirect to login page
+            self.assertIn('login', response.location)
+
 
 if __name__ == '__main__':
     unittest.main()
