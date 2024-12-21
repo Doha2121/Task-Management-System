@@ -1,7 +1,7 @@
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.2
-Flask-Login==0.6.2
-Werkzeug>=2.3.7
+Flask-Login==0.6.1  # Downgrade to an earlier version that works with your Werkzeug
+Werkzeug==2.3.7     # Specify a compatible version of Werkzeug
 Flask-WTF==1.0.0
 Flask-Bootstrap==3.3.7.1
 pytest==7.3.2
