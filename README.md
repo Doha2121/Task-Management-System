@@ -4,7 +4,9 @@ A collaborative project designed to help users manage their tasks efficiently.
 ## Features
 •	Functional Requirements
 •	User Authentication:
+
 o	 Register (Sign Up)
+
 o	 Sign in
 o	 Log out
 •	Tasks Management 
