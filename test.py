@@ -3,25 +3,28 @@ from app import app, db, User, Task
 from flask_login import login_user
 from werkzeug.security import generate_password_hash
 
-
 class TaskManagementTestCase(unittest.TestCase):
 
     # Setup and teardown for test database
     def setUp(self):
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use in-memory database for testing
         app.config['SECRET_KEY'] = 'testsecret'
         self.client = app.test_client()
-        db.create_all()
 
-        # Create a test user
-        self.user = User(username="testuser", password=generate_password_hash("testpassword"), gender="male")
-        db.session.add(self.user)
-        db.session.commit()
+        # Set up the app context
+        with app.app_context():
+            db.create_all()
+
+            # Create a test user
+            self.user = User(username="testuser", password=generate_password_hash("testpassword"), gender="male")
+            db.session.add(self.user)
+            db.session.commit()
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        with app.app_context():
+            db.session.remove()
+            db.drop_all()
 
     # Test user registration
     def test_register(self):
@@ -31,8 +34,9 @@ class TaskManagementTestCase(unittest.TestCase):
             'gender': 'female'
         })
         self.assertEqual(response.status_code, 302)  # Should redirect to login page
-        user = User.query.filter_by(username='newuser').first()
-        self.assertIsNotNone(user)
+        with app.app_context():
+            user = User.query.filter_by(username='newuser').first()
+            self.assertIsNotNone(user)
 
     # Test user login
     def test_login(self):
@@ -65,15 +69,17 @@ class TaskManagementTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             data = response.get_json()
             self.assertEqual(data['status'], 'success')
-            task = Task.query.filter_by(title='Test Task').first()
-            self.assertIsNotNone(task)
+            with app.app_context():
+                task = Task.query.filter_by(title='Test Task').first()
+                self.assertIsNotNone(task)
 
     # Test updating a task
     def test_update_task(self):
         # Add a task
         task = Task(title='Test Task', description='Old description', user_id=self.user.id)
-        db.session.add(task)
-        db.session.commit()
+        with app.app_context():
+            db.session.add(task)
+            db.session.commit()
 
         with self.client:
             login_user(self.user)
@@ -84,16 +90,18 @@ class TaskManagementTestCase(unittest.TestCase):
                 'category': 'Home'
             })
             self.assertEqual(response.status_code, 302)  # Should redirect to dashboard
-            updated_task = Task.query.get(task.id)
-            self.assertEqual(updated_task.title, 'Updated Task')
-            self.assertEqual(updated_task.description, 'Updated description')
+            with app.app_context():
+                updated_task = Task.query.get(task.id)
+                self.assertEqual(updated_task.title, 'Updated Task')
+                self.assertEqual(updated_task.description, 'Updated description')
 
     # Test deleting a task
     def test_delete_task(self):
         # Add a task
         task = Task(title='Test Task', description='This will be deleted', user_id=self.user.id)
-        db.session.add(task)
-        db.session.commit()
+        with app.app_context():
+            db.session.add(task)
+            db.session.commit()
 
         with self.client:
             login_user(self.user)
@@ -101,8 +109,9 @@ class TaskManagementTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 200)
             data = response.get_json()
             self.assertEqual(data['status'], 'success')
-            deleted_task = Task.query.get(task.id)
-            self.assertIsNone(deleted_task)
+            with app.app_context():
+                deleted_task = Task.query.get(task.id)
+                self.assertIsNone(deleted_task)
 
     # Test home page access without login (should redirect to login)
     def test_home_no_login(self):
