@@ -58,7 +58,7 @@ class TaskManagementTestCase(unittest.TestCase):
 
     # Test adding a task
     def test_add_task(self):
-        with self.client:
+        with app.app_context():  # Ensure the app context is available for login
             login_user(self.user)
             response = self.client.post('/add', data={
                 'title': 'Test Task',
@@ -75,13 +75,12 @@ class TaskManagementTestCase(unittest.TestCase):
 
     # Test updating a task
     def test_update_task(self):
-        # Add a task
-        task = Task(title='Test Task', description='Old description', user_id=self.user.id)
-        with app.app_context():
+        with app.app_context():  # Ensure the app context is available
+            task = Task(title='Test Task', description='Old description', user_id=self.user.id)
             db.session.add(task)
             db.session.commit()
 
-        with self.client:
+        with app.app_context():  # Ensure the app context is available
             login_user(self.user)
             response = self.client.post(f'/update/{task.id}', data={
                 'title': 'Updated Task',
@@ -90,28 +89,25 @@ class TaskManagementTestCase(unittest.TestCase):
                 'category': 'Home'
             })
             self.assertEqual(response.status_code, 302)  # Should redirect to dashboard
-            with app.app_context():
-                updated_task = Task.query.get(task.id)
-                self.assertEqual(updated_task.title, 'Updated Task')
-                self.assertEqual(updated_task.description, 'Updated description')
+            updated_task = Task.query.get(task.id)
+            self.assertEqual(updated_task.title, 'Updated Task')
+            self.assertEqual(updated_task.description, 'Updated description')
 
     # Test deleting a task
     def test_delete_task(self):
-        # Add a task
-        task = Task(title='Test Task', description='This will be deleted', user_id=self.user.id)
-        with app.app_context():
+        with app.app_context():  # Ensure the app context is available
+            task = Task(title='Test Task', description='This will be deleted', user_id=self.user.id)
             db.session.add(task)
             db.session.commit()
 
-        with self.client:
+        with app.app_context():  # Ensure the app context is available
             login_user(self.user)
             response = self.client.post(f'/delete/{task.id}')
             self.assertEqual(response.status_code, 200)
             data = response.get_json()
             self.assertEqual(data['status'], 'success')
-            with app.app_context():
-                deleted_task = Task.query.get(task.id)
-                self.assertIsNone(deleted_task)
+            deleted_task = Task.query.get(task.id)
+            self.assertIsNone(deleted_task)
 
     # Test home page access without login (should redirect to login)
     def test_home_no_login(self):
@@ -120,7 +116,7 @@ class TaskManagementTestCase(unittest.TestCase):
 
     # Test dashboard page access with login
     def test_dashboard_with_login(self):
-        with self.client:
+        with app.app_context():  # Ensure the app context is available
             login_user(self.user)
             response = self.client.get('/dashboard')
             self.assertEqual(response.status_code, 200)
@@ -128,7 +124,7 @@ class TaskManagementTestCase(unittest.TestCase):
 
     # Test logout
     def test_logout(self):
-        with self.client:
+        with app.app_context():  # Ensure the app context is available
             login_user(self.user)
             response = self.client.get('/logout')
             self.assertEqual(response.status_code, 302)  # Should redirect to login page
