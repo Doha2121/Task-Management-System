@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Task</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="task-entry">
+                <h1>Update Task</h1>
+
+                <form method="POST">
+                    <input type="text" id="taskTitle" name="title" value="{{ task.title }}" required placeholder="Enter task title">
+                    <textarea id="taskDescription" name="description" placeholder="Enter task description...">{{ task.description }}</textarea>
+                    <input type="date" id="taskDueDate" name="due_date" value="{{ formatted_due_date }}">
+                    <input type="text" id="taskCategory" name="category" value="{{ task.category }}" placeholder="Enter category">
+                    <button type="submit">Update Task</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
