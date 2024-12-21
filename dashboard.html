@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="app-sidebar-scrollable-container">
+            <h2>Dashboard</h2>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('dashboard') }}" class="active">Dashboard</a></li>
+                <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main content -->
+        <div class="main-content">
+            <h1>Dashboard</h1>
+
+            <!-- Task Form -->
+            <form id="addTaskForm">
+                <input type="text" id="taskTitle" name="title" required placeholder="Enter task title">
+                <textarea id="taskDescription" name="description" placeholder="Enter task description..."></textarea>
+                <input type="date" id="taskDueDate" name="due_date">
+                <input type="text" id="taskCategory" name="category" placeholder="Enter category">
+                <button type="submit">Add Task</button>
+            </form>
+
+            <!-- Task List -->
+            <ul id="taskList">
+                <!-- Tasks will be dynamically added here -->
+                {% for task in tasks %}
+                    <li id="task-{{ task.id }}">
+                        <h3>{{ task.title }}</h3>
+                        <p>{{ task.description }}</p>
+                        <p>Due date: {{ task.due_date }}</p>
+                        <p>Category: {{ task.category }}</p>
+                        <button class="edit-btn" onclick="editTask({{ task.id }})">Edit</button>
+                        <button class="delete-btn" onclick="deleteTask({{ task.id }})">Delete</button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <script>
+        // Handle form submission
+        document.getElementById('addTaskForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const category = document.getElementById('taskCategory').value;
+
+            fetch('/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: title,
+                    description: description,
+                    due_date: dueDate,
+                    category: category
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const newTask = data;
+                    const taskList = document.getElementById('taskList');
+                    const newTaskElement = document.createElement('li');
+                    newTaskElement.id = `task-${newTask.task_id}`;
+                    newTaskElement.innerHTML = `
+                        <h3>${newTask.task_title}</h3>
+                        <p>${newTask.task_description}</p>
+                        <p>Due date: ${newTask.task_due_date}</p>
+                        <p>Category: ${newTask.task_category}</p>
+                        <button class="edit-btn" onclick="editTask(${newTask.task_id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteTask(${newTask.task_id})">Delete</button>
+                    `;
+                    taskList.appendChild(newTaskElement);
+                    alert('Task added successfully!');
+                } else {
+                    alert('Failed to add task');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Function to handle task deletion
+        function deleteTask(taskId) {
+            fetch(`/delete/${taskId}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById(`task-${taskId}`).remove();
+                    alert('Task deleted successfully!');
+                } else {
+                    alert('Failed to delete task');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Function to handle task editing
+        function editTask(taskId) {
+            // Redirect to the update page with the task ID
+            window.location.href = `/update/${taskId}`;
+        }
+    </script>
+</body>
+</html>
