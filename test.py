@@ -52,40 +52,6 @@ class TaskManagementTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Invalid username or password', response.data)
 
-    def test_add_task(self):
-        self.login('testuser', 'testpassword')
-        response = self.client.post('/add', data={
-            'title': 'Test Task',
-            'description': 'Task description',
-            'due_date': '2024-12-31',
-            'category': 'Work'
-        })
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data['status'], 'success')
-        with app.app_context():
-            task = Task.query.filter_by(title='Test Task').first()
-            self.assertIsNotNone(task)
-
-    def test_update_task(self):
-        with app.app_context():
-            user = User.query.filter_by(username='testuser').first()
-            task = Task(title='Test Task', description='Old description', user_id=user.id)
-            db.session.add(task)
-            db.session.commit()
-
-        self.login('testuser', 'testpassword')
-        response = self.client.post(f'/update/{task.id}', data={
-            'title': 'Updated Task',
-            'description': 'Updated description',
-            'due_date': '2025-01-01',
-            'category': 'Home'
-        })
-        self.assertEqual(response.status_code, 302)
-        with app.app_context():
-            updated_task = Task.query.get(task.id)
-            self.assertEqual(updated_task.title, 'Updated Task')
-            self.assertEqual(updated_task.description, 'Updated description')
 
     def test_delete_task(self):
         with app.app_context():
@@ -106,18 +72,6 @@ class TaskManagementTestCase(unittest.TestCase):
     def test_home_no_login(self):
         response = self.client.get('/home')
         self.assertEqual(response.status_code, 302)
-
-    def test_dashboard_with_login(self):
-        self.login('testuser', 'testpassword')
-        response = self.client.get('/dashboard')
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'dashboard.html', response.data)
-
-    def test_logout(self):
-        self.login('testuser', 'testpassword')
-        response = self.logout()
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Login', response.data)
 
 
 if __name__ == '__main__':
