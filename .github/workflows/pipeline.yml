@@ -1,4 +1,4 @@
-name: Test Calculator
+name: Task Management System
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@v2  # Check out the repository code
 
       - name: Set up Python environment
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v23
         with:
           python-version: 3.10.11  # Replace with your Python version (adjust if needed)
 
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Deploy Application
         run: |
